@@ -48,9 +48,7 @@ class ForegroundService: Service() {
         while (true) {
             val batteryPercent = getBatteryPercent()
 
-            Log.e("gowtham", "monitorBattery: $batteryPercent")
-
-            if (batteryPercent < 70 && batteryPercent != previousPercentage && !batteryIsCharging()) {
+            if (batteryPercent < 5 && batteryPercent != previousPercentage && !batteryIsCharging()) {
                 previousPercentage = batteryPercent
                 makeForeground(batteryPercent)
                 vibratePhone()
