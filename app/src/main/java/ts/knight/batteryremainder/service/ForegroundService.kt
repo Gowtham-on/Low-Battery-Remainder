@@ -14,12 +14,11 @@ import android.os.IBinder
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
-import android.util.Log
 import androidx.core.app.NotificationCompat
 import ts.knight.batteryremainder.MainActivity
 import ts.knight.batteryremainder.R
 
-class ForegroundService: Service() {
+class ForegroundService : Service() {
 
     private lateinit var notificationManager: NotificationManager
     var previousPercentage = 100
@@ -31,6 +30,8 @@ class ForegroundService: Service() {
         super.onCreate()
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         batteryManager = getSystemService(BATTERY_SERVICE) as BatteryManager
+        makeForeground(getBatteryPercent())
+
     }
 
     override fun onBind(p0: Intent?): IBinder? {
@@ -48,7 +49,7 @@ class ForegroundService: Service() {
         while (true) {
             val batteryPercent = getBatteryPercent()
 
-            if (batteryPercent < 5 && batteryPercent != previousPercentage && !batteryIsCharging()) {
+            if (batteryPercent <= 5 && batteryPercent != previousPercentage && !batteryIsCharging()) {
                 previousPercentage = batteryPercent
                 makeForeground(batteryPercent)
                 vibratePhone()
@@ -122,7 +123,12 @@ class ForegroundService: Service() {
 
         if (vibrator.hasVibrator()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)) // New vibrate method for API Level 26 or higher
+                vibrator.vibrate(
+                    VibrationEffect.createOneShot(
+                        1000,
+                        VibrationEffect.DEFAULT_AMPLITUDE
+                    )
+                ) // New vibrate method for API Level 26 or higher
             } else {
                 vibrator.vibrate(1000) // Vibrate method for below API Level 26
             }
@@ -147,6 +153,5 @@ class ForegroundService: Service() {
             val intent = Intent(context, ForegroundService::class.java)
             context.stopService(intent)
         }
-
     }
 }
